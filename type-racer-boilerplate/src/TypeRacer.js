@@ -14,7 +14,7 @@ export default class TypeRacer extends React.Component {
             wrongWords: 0,
             raceCompleteMessage: "",
             wpm: 0,
-            timer: "02:30",
+            timer: "05:00",
             randomText: "Hi this is demo. It's been a while."
         };
 
@@ -30,6 +30,10 @@ export default class TypeRacer extends React.Component {
             keyCodeList.push(i);
         }
         this.keyCodeList = keyCodeList;
+
+        this.startTime = null;
+        this.wpmSpeed = 0;
+        this.wordCount = 0;
 
         //set timer variable to null initially.
         this.timeOut = null;
@@ -59,13 +63,16 @@ export default class TypeRacer extends React.Component {
             })
             .catch((error) => {
                 console.log(error);
-        this.breakSentencesIntoWords(this.state.randomText, " ");
-        });
+                this.breakSentencesIntoWords(this.state.randomText, " ");
+            });
     }
 
     //reset all values to initial state values for next race.
     resetRace() {
         this.timeOut = null;
+        this.startTime = null;
+        this.wpmSpeed = 0;
+        this.wordCount = 0;
         this.setState({
             wordsArray: [],
             enteredWord: "",
@@ -74,7 +81,7 @@ export default class TypeRacer extends React.Component {
             highlightArray: [],
             wrongWords: 0,
             wpm: 0,
-            timer: "02:30",
+            timer: "05:00",
             raceCompleteMessage: "",
             randomText: "Hi this is demo. It's been a while."
         }, () => {
@@ -133,6 +140,12 @@ export default class TypeRacer extends React.Component {
         }, 1000);
     }
 
+    //calculate words per minute using performance.now() api. Current Time - Start Time/1000 gives in seconds / 60 gives in minute.
+    calculateWpm(startTimeMs, currentTimeMs, totalWords) {
+        const mins = ((currentTimeMs - startTimeMs) / 1000) / 60;
+        return (totalWords / mins).toFixed(2);
+    }
+
     // saving value of allowed char in state and highlighting based on condition match.
     compareTextOnChange(event) {
 
@@ -152,7 +165,12 @@ export default class TypeRacer extends React.Component {
                 enteredWord: this.state.enteredWord.substring(0, this.state.enteredWord.length - 1)
             });
         } else if (this.keyCodeList.includes(event.keyCode)) {  //checking if allowed chars are entered.
+
             let doSetState = true, wordsArray;
+
+            if (this.startTime === null) {
+                this.startTime = performance.now();
+            }
 
             //checking if word is complete or not.
             if (event.key === " ") {
@@ -164,6 +182,8 @@ export default class TypeRacer extends React.Component {
                     highlightArray[this.state.matchIndex] = "highlight-green";
                     matchIndex++;
                     wordsArray.splice(0, 1);
+                    this.wpmSpeed = this.calculateWpm(this.startTime, performance.now(), this.wordCount);
+                    this.wordCount = this.wordCount + 1;
                     this.setState({
                         enteredWord: "",
                         highlightArray,
@@ -254,6 +274,14 @@ export default class TypeRacer extends React.Component {
                         {
                             this.state.timer === "00:00" ?
                                 "Race over due to timeout"
+                                : ""
+                        }
+                    </span>
+                    <br/>
+                    <span>
+                        {
+                            this.state.raceCompleteMessage !== "" || this.state.timer === "00:00" ?
+                                "Word Per Minute is " + this.wpmSpeed
                                 : ""
                         }
                     </span>
