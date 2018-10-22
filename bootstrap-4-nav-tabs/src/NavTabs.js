@@ -2,6 +2,10 @@ import React from 'react';
 
 export default class NavTabs extends React.Component {
 
+    /**
+     * Initializing state with available items keys. True for first index rest are false.
+     * @param {Object} props
+     */
     constructor(props) {
         super(props);
         let state = {};
@@ -12,6 +16,10 @@ export default class NavTabs extends React.Component {
         this.tabClick = this.tabClick.bind(this);
     }
 
+    /**
+     * changing the tab click to active and making rest tabs inactive.If calling component wants event object then passing back.
+     * @param {Object} event
+     */
     tabClick(event) {
         event.persist();
         let state = this.state;
@@ -31,6 +39,10 @@ export default class NavTabs extends React.Component {
         });
     }
 
+
+    /**
+     * rendering the ul li list for available items and also adding tab-content properties for each item.
+     */
     render() {
 
         let itemLiList = Object.keys(this.props.items);
@@ -59,6 +71,7 @@ export default class NavTabs extends React.Component {
                         return <div
                             key={`tabContentDivfor${item}`}
                             className={"tab-pane container " + (this.state[item] ? "active" : "fade")}
+                            id={`tab-content-${items}`}
                         >
                             {this.props.items[item].content}
                         </div>;
