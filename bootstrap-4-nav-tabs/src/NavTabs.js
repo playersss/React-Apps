@@ -71,7 +71,7 @@ export default class NavTabs extends React.Component {
                         return <div
                             key={`tabContentDivfor${item}`}
                             className={"tab-pane container " + (this.state[item] ? "active" : "fade")}
-                            id={`tab-content-${items}`}
+                            id={`tab-content-${item}`}
                         >
                             {this.props.items[item].content}
                         </div>;
